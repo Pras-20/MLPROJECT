@@ -13,8 +13,16 @@ from src.utils import save_path
 from src.exception import CustomException
 from src.logger import logging
 
+from sklearn.model_selection import train_test_split
+from dataclasses import dataclass
+
+
+from src.utils import save_path
+
+
+
 class DataTransformationConfig:
-    preprocessor_ob_file_path=os.path.join('artifacts',"prepocessor.pkl")
+    preprocessor_ob_file_path=os.path.join('aritfacts',"preprocessor.pkl")
 
 
 class DataTransformation:
@@ -25,18 +33,18 @@ class DataTransformation:
         '''this function is responsible for data transformation'''
 
         try:
-            numerical_columns=['math score', 'reading score', 'writing score']
+            numerical_columns=['reading score', 'writing score']
             categorical_columns=['gender', 'race/ethnicity', 'parental level of education', 'lunch', 'test preparation course']
 
             num_pipeline=Pipeline(
-                step=[
-                    ("imputer",SimpleImputer(strategy="median")),
+                steps=[
+                    ("imputer",SimpleImputer(strategy="median")),   
                     ("scaler",StandardScaler())
                 ]
             )
         
             cat_pipepline=Pipeline(
-                step=[
+                steps=[
                     ("imputer",SimpleImputer(strategy="most_frequent")),
                     ("OneHotEncoder",OneHotEncoder())
                 ]
@@ -47,22 +55,22 @@ class DataTransformation:
 
 
             preprocessor=ColumnTransformer(
-                {
-                    ("num_pipeline",num_pipeline,numerical_columns)
+                [
+                    ("num_pipeline",num_pipeline,numerical_columns),
                     ("cat_pipline",cat_pipepline,categorical_columns)
-                }
+                ]
             )
             return preprocessor
 
         except Exception as e:
-            raise CustomException(e)
+            raise CustomException(e,sys)
         
 
     def initiate_data_transformation(self,train_path,test_path):
 
         try:
             train_df=pd.read_csv(train_path)
-            test_df=pd.read_csv(train_path)
+            test_df=pd.read_csv(test_path)
 
             logging.info("Read train and test data")
             logging.info("Obtaining prepocessing object")
@@ -83,7 +91,7 @@ class DataTransformation:
             input_feature_train_arr=preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
             
-            train_ar=np.c_[input_feature_test_arr,np.array(target_feature_train_df)]
+            train_ar=np.c_[input_feature_train_arr,np.array(target_feature_train_df)]
             test_ar=np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
             
 
@@ -96,5 +104,12 @@ class DataTransformation:
             return(
                 train_ar,test_ar,self.data_transformation_config.preprocessor_ob_file_path
             )
-        except:
-            pass
+        except Exception as e:
+            raise CustomException(e,sys)
+        
+
+
+
+
+
+
