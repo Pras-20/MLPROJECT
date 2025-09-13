@@ -29,7 +29,7 @@ def predict_datapoint():
             lunch=request.form.get('lunch'),
             test_preparation_course=request.form.get('test_preparation_course'),
             reading_score=request.form.get('reading_score'),
-            write_score=request.form.get('write_score')
+            write_score=request.form.get('writing_score')
         )
 
         pred_df=data.get_data_as_frame()
@@ -38,7 +38,7 @@ def predict_datapoint():
 
         predict_pipeline=PredictPipeline()
 
-        results=predict_pipeline(pred_df)
+        results=predict_pipeline.predict(pred_df)
 
         return render_template('home.html',results=results[0])
 

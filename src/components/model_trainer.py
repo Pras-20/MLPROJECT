@@ -18,6 +18,8 @@ from src.logger import logging
 from src.utils import save_path,evaluate_models
 
 
+
+
 @dataclass
 class ModelTrainerConfig:
     trained_model_file_path=os.path.join("aritfacts","model.pkl")
